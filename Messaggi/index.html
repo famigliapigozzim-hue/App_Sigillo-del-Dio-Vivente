@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1e3a8a">
+<title>Messaggi dal Cielo - Nel Sigillo del Dio Vivente</title>
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+	:root {
+		--bg-primary: #f8fafc;
+		--bg-secondary: #ffffff;
+		--text-primary: #1e293b;
+		--text-muted: #64748b;
+		--accent: #1e3a8a;
+		--accent-hover: #1d4ed8;
+		--border: #e2e8f0;
+		--card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+		--font-family-app: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		--content-font-scale: 1;
+	}
+	[data-theme="dark"] {
+		--bg-primary: #0f172a;
+		--bg-secondary: #1e293b;
+		--text-primary: #f8fafc;
+		--text-muted: #94a3b8;
+		--accent: #3b82f6;
+		--accent-hover: #60a5fa;
+		--border: #334155;
+		--card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+	}
+	[data-font="serif"] {
+		--font-family-app: Georgia, "Times New Roman", "Noto Serif", "Liberation Serif", serif;
+	}
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+		font-family: var(--font-family-app);
+		-webkit-tap-highlight-color: transparent;
+	}
+	body {
+		background-color: var(--bg-primary);
+		color: var(--text-primary);
+		min-height: 100vh;
+		padding-bottom: 2.5rem;
+	}
+	header {
+		background-color: var(--accent);
+		color: white;
+		padding: 0.9rem 1rem;
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		box-shadow: var(--card-shadow);
+	}
+	.header-container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		max-width: 700px;
+		margin: 0 auto;
+		gap: 0.75rem;
+	}
+	.app-title {
+		font-weight: 700;
+		font-size: 1rem;
+		line-height: 1.3;
+	}
+	.header-controls { display: flex; gap: 0.4rem; flex-shrink: 0; }
+	.btn-icon {
+		background: none;
+		border: none;
+		color: white;
+		font-size: 1.3rem;
+		cursor: pointer;
+		padding: 0.3rem;
+		border-radius: 0.375rem;
+	}
+	main { max-width: 700px; margin: 0 auto; padding: 1rem; }
+	.view-section { display: none; }
+	.view-section.active { display: block; }
+
+	/* Home: torna alla scelta Canti/Messaggi */
+	.btn-hub {
+		display: inline-block;
+		background: none;
+		border: none;
+		color: rgba(255,255,255,0.85);
+		font-size: 0.78rem;
+		text-decoration: underline;
+		cursor: pointer;
+		margin-top: 0.1rem;
+		padding: 0;
+	}
+
+	/* Ricerca e filtri */
+	.search-container { margin-bottom: 0.75rem; }
+	.search-input {
+		width: 100%;
+		padding: 0.7rem 1rem;
+		border: 1px solid var(--border);
+		border-radius: 0.5rem;
+		background-color: var(--bg-secondary);
+		color: var(--text-primary);
+		font-size: 1rem;
+	}
+	.filter-chips {
+		display: flex;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		gap: 0.5rem;
+		padding-bottom: 0.6rem;
+		margin-bottom: 0.5rem;
+		-webkit-overflow-scrolling: touch;
+	}
+	.filter-chips::-webkit-scrollbar { display: none; }
+	.filter-chip {
+		flex-shrink: 0;
+		background-color: var(--bg-secondary);
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		padding: 0.4rem 0.9rem;
+		border-radius: 1.2rem;
+		font-size: 0.82rem;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.filter-chip.active { background-color: var(--accent); border-color: var(--accent); color: white; }
+	.no-results { text-align: center; color: var(--text-muted); padding: 2.5rem 1rem; }
+
+	/* Card messaggio nell'Indice */
+	.msg-card {
+		background-color: var(--bg-secondary);
+		border: 1px solid var(--border);
+		border-radius: 0.5rem;
+		padding: 1rem;
+		margin-bottom: 0.75rem;
+		cursor: pointer;
+		box-shadow: var(--card-shadow);
+		transition: transform 0.1s;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.msg-card:active { transform: scale(0.99); }
+	.msg-card-info { overflow: hidden; flex-grow: 1; }
+	.msg-card-speaker { font-weight: 700; font-size: calc(1em * var(--content-font-scale)); color: var(--accent); }
+	.msg-card-date { font-size: calc(0.78em * var(--content-font-scale)); color: var(--text-muted); margin-bottom: 0.25rem; }
+	.msg-card-snippet {
+		font-size: calc(0.85em * var(--content-font-scale));
+		color: var(--text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+	.msg-card-actions { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
+	.icon-btn {
+		background: none; border: none; font-size: 1.25rem; line-height: 1; cursor: pointer;
+		padding: 0.2rem; color: var(--text-muted); border-radius: 0.375rem;
+	}
+	.icon-btn.is-favorite { color: #f5a623; }
+
+	/* Dettaglio messaggio */
+	.detail-header {
+		display: flex; justify-content: space-between; align-items: center; width: 100%;
+		position: sticky; top: 0; background: var(--bg-primary); z-index: 40; padding: 0.5rem 0;
+	}
+	.btn-back {
+		background-color: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);
+		padding: 0.5rem 0.9rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+	}
+	.detail-meta { margin-top: 0.75rem; margin-bottom: 0.5rem; }
+	.detail-speaker { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+	.detail-subinfo { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem; }
+	.detail-actions { display: flex; gap: 1rem; align-items: center; margin: 0.75rem 0 1rem 0; }
+	.msg-text {
+		font-size: calc(1.05rem * var(--content-font-scale));
+		line-height: 1.7;
+		white-space: pre-wrap;
+		word-wrap: break-word;
+	}
+
+	/* Impostazioni (modale) */
+	.modal-overlay {
+		display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.5);
+		z-index: 200; align-items: flex-end; justify-content: center;
+	}
+	.modal-overlay.active { display: flex; }
+	.modal-content {
+		background-color: var(--bg-primary); width: 100%; max-width: 700px; max-height: 88vh;
+		overflow-y: auto; border-radius: 1rem 1rem 0 0; padding: 1.25rem;
+	}
+	.modal-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+	.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border); gap: 0.75rem; }
+	.btn-setting {
+		background-color: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);
+		padding: 0.4rem 0.8rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600;
+	}
+	.font-size-value { display: inline-block; min-width: 3.2rem; text-align: center; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+	.switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+	.switch input { opacity: 0; width: 0; height: 0; }
+	.switch .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: 0.3s; border-radius: 24px; cursor: pointer; }
+	.switch .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: #fff; transition: 0.3s; border-radius: 50%; }
+	.switch input:checked + .slider { background-color: var(--accent); }
+	.switch input:checked + .slider:before { transform: translateX(20px); }
+	.switch input:disabled + .slider { opacity: 0.4; cursor: not-allowed; }
+	.setting-note { font-size: 0.78rem; color: var(--text-muted); margin-top: -0.4rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+	.version-badge { color: var(--text-muted); font-size: 0.85rem; }
+	.last-item { display: none; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+	.last-item.active { display: flex; }
+	.last-item-label { font-size: 0.85rem; color: var(--text-muted); }
+	.last-link {
+		display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; width: 100%;
+		background-color: var(--bg-primary); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+		border-radius: 0.375rem; padding: 0.6rem 0.8rem; cursor: pointer;
+	}
+	.last-link-title { font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.install-item { display: none; }
+	.install-item.active { display: flex; }
+
+	/* Banner aggiornamento */
+	.update-toast {
+		position: fixed; left: 1rem; right: 1rem; bottom: 1rem; max-width: 500px; margin: 0 auto;
+		background-color: var(--accent); color: white; border-radius: 0.6rem; padding: 0.9rem 1rem;
+		display: none; align-items: center; justify-content: space-between; gap: 0.75rem;
+		box-shadow: 0 6px 16px rgba(0,0,0,0.25); z-index: 300; cursor: pointer;
+	}
+	.update-toast.active { display: flex; }
+	.update-toast-text { font-size: 0.9rem; line-height: 1.35; }
+	.update-toast-text strong { display: block; font-size: 0.95rem; margin-bottom: 0.1rem; }
+	.update-toast-btn {
+		background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.5); color: white;
+		padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0;
+	}
+</style>
+</head>
+<body>
+	<header>
+		<div class="header-container">
+			<div>
+				<div class="app-title" id="nav-title">Messaggi dal Cielo</div>
+				<button class="btn-hub" onclick="window.location.href='../index.html'">↩ Torna alla scelta app</button>
+			</div>
+			<div class="header-controls">
+				<button class="btn-icon" id="btn-settings" onclick="openSettings()" aria-label="Impostazioni" title="Impostazioni">⚙️</button>
+			</div>
+		</div>
+	</header>
+
+	<main>
+		<!-- INDICE MESSAGGI -->
+		<div id="list-view" class="view-section active">
+			<div class="search-container">
+				<input type="text" id="search-bar" class="search-input" placeholder="Cerca per parola, data o chi parla..." oninput="applyFilters()">
+			</div>
+			<div class="filter-chips" id="filter-chips"></div>
+			<div id="messages-list"></div>
+		</div>
+
+		<!-- DETTAGLIO MESSAGGIO -->
+		<div id="detail-view" class="view-section">
+			<div class="detail-header">
+				<button class="btn-back" onclick="showListView()">← Indice</button>
+				<div style="display:flex; gap:0.5rem;">
+					<button class="btn-back" id="btn-prev" onclick="prevMessage()">◀ Prec.</button>
+					<button class="btn-back" id="btn-next" onclick="nextMessage()">Succ. ▶</button>
+				</div>
+			</div>
+			<div class="detail-meta">
+				<div class="detail-speaker" id="detail-speaker"></div>
+				<div class="detail-subinfo" id="detail-subinfo"></div>
+			</div>
+			<div class="detail-actions">
+				<button class="icon-btn" id="btn-favorite-detail" onclick="toggleFavoriteCurrent()" title="Aggiungi ai preferiti">☆</button>
+				<button class="icon-btn" id="btn-share-detail" onclick="shareCurrent()" title="Condividi">📤</button>
+			</div>
+			<div class="msg-text" id="msg-text"></div>
+		</div>
+
+		<!-- MODALE IMPOSTAZIONI -->
+		<div id="settings-modal" class="modal-overlay" onclick="closeSettingsOnOverlay(event)">
+			<div class="modal-content" onclick="event.stopPropagation()">
+				<div class="modal-title">
+					<span>Impostazioni</span>
+					<button class="btn-icon" style="color: var(--text-primary);" onclick="closeSettings()">✕</button>
+				</div>
+
+				<div class="setting-item">
+					<span>Dimensione testo</span>
+					<div style="display:flex; align-items:center; gap:0.5rem;">
+						<button class="btn-setting" onclick="changeFontSize(-1)">A-</button>
+						<span class="font-size-value" id="font-size-value">100%</span>
+						<button class="btn-setting" onclick="changeFontSize(1)">A+</button>
+					</div>
+				</div>
+				<div class="setting-note">Puoi anche stringere/allargare le dita ("pinch") sul testo per cambiare la dimensione.</div>
+
+				<div class="setting-item">
+					<span>Stile del carattere<br><small style="color: var(--text-muted); font-weight: normal;">Sans / Serif</small></span>
+					<label class="switch">
+						<input type="checkbox" id="fontfamily-toggle" onchange="onFontFamilyToggleChange()">
+						<span class="slider"></span>
+					</label>
+				</div>
+
+				<div class="setting-item">
+					<span>Tema della pagina</span>
+					<button class="btn-setting" onclick="toggleTheme()">🌓 Cambia</button>
+				</div>
+
+				<div class="setting-item">
+					<span>Schermo sempre attivo<br><small style="color: var(--text-muted); font-weight: normal;">durante la lettura del messaggio</small></span>
+					<label class="switch">
+						<input type="checkbox" id="wakelock-toggle" onchange="onWakeLockToggleChange()">
+						<span class="slider"></span>
+					</label>
+				</div>
+				<div class="setting-note" id="wakelock-note" style="display:none;">Il tuo browser non supporta questa funzione.</div>
+
+				<div class="setting-item">
+					<span>Vibrazione al tap<br><small style="color: var(--text-muted); font-weight: normal;">leggero feedback quando tocchi i pulsanti</small></span>
+					<label class="switch">
+						<input type="checkbox" id="vibration-toggle" onchange="onVibrationToggleChange()">
+						<span class="slider"></span>
+					</label>
+				</div>
+				<div class="setting-note" id="vibration-note" style="display:none;">Il tuo dispositivo non supporta questa funzione.</div>
+
+				<div class="setting-item install-item" id="install-item">
+					<span>Installa l'app<br><small style="color: var(--text-muted); font-weight: normal;">per usarla anche offline</small></span>
+					<button class="btn-setting" onclick="installApp()">⬇️ Installa</button>
+				</div>
+
+				<div class="setting-item last-item" id="last-item">
+					<span class="last-item-label">Ultimo messaggio letto</span>
+					<div class="last-link" onclick="openLast()">
+						<span class="last-link-title" id="last-title"></span>
+						<span>→</span>
+					</div>
+				</div>
+
+				<div class="setting-item">
+					<span>Numero totale messaggi</span>
+					<span class="version-badge" id="total-count">–</span>
+				</div>
+				<div class="setting-item">
+					<span>Versione App</span>
+					<span class="version-badge">Ver_2026-08-27</span>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<div class="update-toast" id="update-toast" onclick="applyUpdate()">
+		<div class="update-toast-text">
+			<strong>Nuova versione disponibile</strong>
+			Tocca per aggiornare l'app
+		</div>
+		<span class="update-toast-btn">Aggiorna ora</span>
+	</div>
+
+<script>
+	// ============================================================
+	// IMPOSTAZIONI PREDEFINITE (modifica qui per cambiare i default)
+	// ============================================================
+	const DEFAULT_SETTINGS = {
+		theme: 'light',
+		fontSize: 1.05,
+		fontFamily: 'sans',
+		wakeLockEnabled: false,
+		vibrationEnabled: true
+	};
+	const BASE_FONT_SIZE = DEFAULT_SETTINGS.fontSize;
+
+	function getSetting(key) {
+		const raw = localStorage.getItem(key);
+		if (raw === null) return DEFAULT_SETTINGS[key];
+		if (typeof DEFAULT_SETTINGS[key] === 'boolean') return raw === 'true';
+		if (typeof DEFAULT_SETTINGS[key] === 'number') return parseFloat(raw);
+		return raw;
+	}
+	function setSetting(key, value) { localStorage.setItem(key, value); }
+
+	let messaggi = [];
+	let currentIndex = 0;
+	let activeSpeaker = null;
+	let onlyFavorites = false;
+	let currentFontSize = getSetting('fontSize');
+	let wakeLockSentinel = null;
+	let swRegistration = null;
+	let deferredInstallPrompt = null;
+
+	async function fetchMessaggi() {
+		const response = await fetch('messaggi.json');
+		if (!response.ok) throw new Error('Impossibile scaricare messaggi.json (' + response.status + ')');
+		return await response.json();
+	}
+
+	async function initApp() {
+		const listContainer = document.getElementById('messages-list');
+		if (listContainer) listContainer.innerHTML = '<div class="no-results">Caricamento messaggi...</div>';
+		try {
+			messaggi = await fetchMessaggi();
+			messaggi.sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0));
+		} catch (err) {
+			console.log('Errore nel caricamento dei messaggi:', err);
+			if (listContainer) {
+				listContainer.innerHTML = '<div class="no-results">Impossibile caricare i messaggi. Controlla la connessione e riprova.<br><br>' +
+					'<button class="btn-setting" onclick="initApp()">Riprova</button></div>';
+			}
+			return;
+		}
+		renderFilterChips();
+		const lastId = localStorage.getItem('lastMessage');
+		const wasInDetail = localStorage.getItem('wasInDetailView') === 'true';
+		if (lastId !== null && wasInDetail && messaggi.findIndex(m => m.id === lastId) !== -1) {
+			showMessageDetail(messaggi.findIndex(m => m.id === lastId));
+		} else {
+			applyFilters();
+		}
+		applyFontSize();
+		updateFontSizeDisplay();
+	}
+
+	function normalizeText(text) {
+		return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+	}
+
+	function renderFilterChips() {
+		const container = document.getElementById('filter-chips');
+		if (!container) return;
+		container.innerHTML = '';
+		const allChip = document.createElement('button');
+		allChip.className = 'filter-chip' + (!activeSpeaker && !onlyFavorites ? ' active' : '');
+		allChip.textContent = 'Tutti';
+		allChip.onclick = () => { vibrate(); activeSpeaker = null; onlyFavorites = false; renderFilterChips(); applyFilters(); };
+		container.appendChild(allChip);
+
+		const favChip = document.createElement('button');
+		favChip.className = 'filter-chip' + (onlyFavorites ? ' active' : '');
+		favChip.textContent = '★ Preferiti';
+		favChip.onclick = () => { vibrate(); onlyFavorites = !onlyFavorites; renderFilterChips(); applyFilters(); };
+		container.appendChild(favChip);
+
+		const speakers = Array.from(new Set(messaggi.map(m => m.chiParla))).sort();
+		speakers.forEach(sp => {
+			const chip = document.createElement('button');
+			chip.className = 'filter-chip' + (activeSpeaker === sp ? ' active' : '');
+			chip.textContent = sp;
+			chip.onclick = () => { vibrate(); activeSpeaker = (activeSpeaker === sp) ? null : sp; renderFilterChips(); applyFilters(); };
+			container.appendChild(chip);
+		});
+	}
+
+	function applyFilters() {
+		const searchBar = document.getElementById('search-bar');
+		const query = normalizeText(searchBar ? searchBar.value.trim() : '');
+		let filtered = messaggi;
+		if (onlyFavorites) {
+			const favs = getFavorites();
+			filtered = filtered.filter(m => favs.has(m.id));
+		}
+		if (activeSpeaker) {
+			filtered = filtered.filter(m => m.chiParla === activeSpeaker);
+		}
+		if (query) {
+			filtered = filtered.filter(m =>
+				normalizeText(m.chiParla).includes(query) ||
+				normalizeText(m.destinatario || '').includes(query) ||
+				normalizeText(m.luogo || '').includes(query) ||
+				normalizeText(m.dataDisplay).includes(query) ||
+				normalizeText(m.testo).includes(query)
+			);
+		}
+		renderMessagesList(filtered);
+	}
+
+	function renderMessagesList(list) {
+		const container = document.getElementById('messages-list');
+		container.innerHTML = '';
+		if (list.length === 0) {
+			container.innerHTML = '<div class="no-results">Nessun messaggio trovato con questo criterio.</div>';
+			return;
+		}
+		list.forEach(msg => {
+			const card = document.createElement('div');
+			card.className = 'msg-card';
+			card.addEventListener('click', () => { vibrate(); showMessageDetail(messaggi.indexOf(msg)); });
+
+			const info = document.createElement('div');
+			info.className = 'msg-card-info';
+			const dateEl = document.createElement('div');
+			dateEl.className = 'msg-card-date';
+			dateEl.textContent = msg.dataDisplay + (msg.destinatario ? ' — a ' + msg.destinatario : '') + (msg.luogo ? ' — ' + msg.luogo : '');
+			const speakerEl = document.createElement('div');
+			speakerEl.className = 'msg-card-speaker';
+			speakerEl.textContent = msg.chiParla;
+			const snippetEl = document.createElement('div');
+			snippetEl.className = 'msg-card-snippet';
+			snippetEl.textContent = msg.testo.replace(/\s+/g, ' ').slice(0, 140) + '...';
+			info.appendChild(dateEl);
+			info.appendChild(speakerEl);
+			info.appendChild(snippetEl);
+
+			const actions = document.createElement('div');
+			actions.className = 'msg-card-actions';
+			const favBtn = document.createElement('button');
+			favBtn.className = 'icon-btn' + (isFavorite(msg.id) ? ' is-favorite' : '');
+			favBtn.textContent = isFavorite(msg.id) ? '★' : '☆';
+			favBtn.addEventListener('click', (e) => {
+				e.stopPropagation(); vibrate(); toggleFavorite(msg.id);
+				favBtn.textContent = isFavorite(msg.id) ? '★' : '☆';
+				favBtn.classList.toggle('is-favorite', isFavorite(msg.id));
+				if (onlyFavorites) applyFilters();
+			});
+			actions.appendChild(favBtn);
+
+			card.appendChild(info);
+			card.appendChild(actions);
+			container.appendChild(card);
+		});
+	}
+
+	// --- PREFERITI (per id messaggio) ---
+	function getFavorites() {
+		try { return new Set(JSON.parse(localStorage.getItem('favoritiMsg') || '[]')); }
+		catch (e) { return new Set(); }
+	}
+	function saveFavorites(set) { localStorage.setItem('favoritiMsg', JSON.stringify(Array.from(set))); }
+	function isFavorite(id) { return getFavorites().has(id); }
+	function toggleFavorite(id) {
+		const favs = getFavorites();
+		if (favs.has(id)) favs.delete(id); else favs.add(id);
+		saveFavorites(favs);
+	}
+
+	// --- DETTAGLIO ---
+	function showMessageDetail(index) {
+		currentIndex = index;
+		const msg = messaggi[index];
+		if (!msg) return;
+		localStorage.setItem('lastMessage', msg.id);
+		localStorage.setItem('wasInDetailView', 'true');
+		document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+		document.getElementById('detail-view').classList.add('active');
+		document.getElementById('detail-speaker').textContent = msg.chiParla;
+		let subinfo = msg.dataDisplay;
+		if (msg.destinatario) subinfo += ' · a ' + msg.destinatario;
+		if (msg.luogo) subinfo += ' · ' + msg.luogo;
+		document.getElementById('detail-subinfo').textContent = subinfo;
+		document.getElementById('msg-text').textContent = msg.testo;
+		document.getElementById('nav-title').textContent = msg.chiParla;
+		updateDetailActionButtons(msg);
+		applyFontSize();
+
+		const btnPrev = document.getElementById('btn-prev');
+		const btnNext = document.getElementById('btn-next');
+		btnPrev.disabled = index === 0;
+		btnPrev.style.opacity = index === 0 ? '0.3' : '1';
+		btnNext.disabled = index === messaggi.length - 1;
+		btnNext.style.opacity = index === messaggi.length - 1 ? '0.3' : '1';
+		window.scrollTo(0, 0);
+		requestWakeLock();
+	}
+	function prevMessage() { vibrate(); if (currentIndex > 0) showMessageDetail(currentIndex - 1); }
+	function nextMessage() { vibrate(); if (currentIndex < messaggi.length - 1) showMessageDetail(currentIndex + 1); }
+
+	function toggleFavoriteCurrent() {
+		vibrate();
+		const msg = messaggi[currentIndex];
+		if (!msg) return;
+		toggleFavorite(msg.id);
+		updateDetailActionButtons(msg);
+	}
+	function updateDetailActionButtons(msg) {
+		const favBtn = document.getElementById('btn-favorite-detail');
+		if (favBtn) {
+			favBtn.textContent = isFavorite(msg.id) ? '★' : '☆';
+			favBtn.classList.toggle('is-favorite', isFavorite(msg.id));
+		}
+	}
+	async function shareCurrent() {
+		vibrate();
+		const msg = messaggi[currentIndex];
+		if (!msg) return;
+		const shareText = 'Messaggio di ' + msg.chiParla + ' - ' + msg.dataDisplay + '\n\n' + msg.testo;
+		if (navigator.share) {
+			try { await navigator.share({ text: shareText }); } catch (e) { /* annullato dall'utente */ }
+		} else if (navigator.clipboard) {
+			try { await navigator.clipboard.writeText(shareText); alert('Testo copiato negli appunti.'); }
+			catch (e) { console.log('Copia non riuscita:', e); }
+		}
+	}
+
+	function showListView() {
+		vibrate();
+		localStorage.setItem('wasInDetailView', 'false');
+		releaseWakeLock();
+		document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+		document.getElementById('list-view').classList.add('active');
+		document.getElementById('nav-title').textContent = 'Messaggi dal Cielo';
+		const searchBar = document.getElementById('search-bar');
+		if (searchBar) searchBar.value = '';
+		applyFilters();
+	}
+	function openLast() {
+		vibrate();
+		const lastId = localStorage.getItem('lastMessage');
+		if (lastId !== null) {
+			const idx = messaggi.findIndex(m => m.id === lastId);
+			if (idx !== -1) { closeSettings(); showMessageDetail(idx); }
+		}
+	}
+	function updateLastSetting() {
+		const item = document.getElementById('last-item');
+		const titleEl = document.getElementById('last-title');
+		if (!item || !titleEl) return;
+		const lastId = localStorage.getItem('lastMessage');
+		const idx = lastId !== null ? messaggi.findIndex(m => m.id === lastId) : -1;
+		if (idx !== -1) {
+			titleEl.textContent = messaggi[idx].chiParla + ' — ' + messaggi[idx].dataDisplay;
+			item.classList.add('active');
+		} else {
+			item.classList.remove('active');
+		}
+	}
+	function updateTotalCount() {
+		const el = document.getElementById('total-count');
+		if (el) el.textContent = messaggi.length > 0 ? messaggi.length : '–';
+	}
+
+	// --- IMPOSTAZIONI ---
+	function openSettings() {
+		vibrate();
+		document.getElementById('settings-modal').classList.add('active');
+		updateFontSizeDisplay();
+		syncWakeLockToggle();
+		syncVibrationToggle();
+		syncFontFamilyToggle();
+		updateLastSetting();
+		updateTotalCount();
+	}
+	function closeSettings() { vibrate(); document.getElementById('settings-modal').classList.remove('active'); }
+	function closeSettingsOnOverlay(event) { if (event.target.id === 'settings-modal') closeSettings(); }
+
+	function applyFontSize() {
+		const scale = currentFontSize / BASE_FONT_SIZE;
+		document.documentElement.style.setProperty('--content-font-scale', scale);
+	}
+	function changeFontSize(direction) {
+		vibrate();
+		currentFontSize += direction * 0.1;
+		if (currentFontSize < 0.75) currentFontSize = 0.75;
+		if (currentFontSize > 2.2) currentFontSize = 2.2;
+		applyFontSize();
+		setSetting('fontSize', currentFontSize);
+		updateFontSizeDisplay();
+	}
+	function updateFontSizeDisplay() {
+		const display = document.getElementById('font-size-value');
+		if (display) display.textContent = Math.round((currentFontSize / BASE_FONT_SIZE) * 100) + '%';
+	}
+
+	// --- PINCH TO ZOOM ---
+	let pinchActive = false;
+	let pinchStartDistance = null;
+	let pinchStartFontSize = null;
+	function getTouchDistance(touches) {
+		const dx = touches[0].clientX - touches[1].clientX;
+		const dy = touches[0].clientY - touches[1].clientY;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+	function setupPinchToZoom(element) {
+		if (!element) return;
+		element.addEventListener('touchstart', (e) => {
+			if (e.touches.length === 2) {
+				pinchActive = true;
+				pinchStartDistance = getTouchDistance(e.touches);
+				pinchStartFontSize = currentFontSize;
+			}
+		}, { passive: true });
+		element.addEventListener('touchmove', (e) => {
+			if (e.touches.length === 2 && pinchStartDistance) {
+				e.preventDefault();
+				const ratio = getTouchDistance(e.touches) / pinchStartDistance;
+				let newSize = pinchStartFontSize * ratio;
+				if (newSize < 0.75) newSize = 0.75;
+				if (newSize > 2.2) newSize = 2.2;
+				currentFontSize = newSize;
+				applyFontSize();
+				updateFontSizeDisplay();
+			}
+		}, { passive: false });
+		element.addEventListener('touchend', (e) => {
+			if (e.touches.length < 2) {
+				if (pinchStartDistance !== null) { setSetting('fontSize', currentFontSize); vibrate(15); }
+				pinchStartDistance = null; pinchStartFontSize = null;
+				setTimeout(() => { pinchActive = false; }, 80);
+			}
+		}, { passive: true });
+	}
+
+	// --- VIBRAZIONE ---
+	function isVibrationSupported() { return 'vibrate' in navigator; }
+	function vibrate(durationMs) {
+		if (!isVibrationSupported()) return;
+		if (!getSetting('vibrationEnabled')) return;
+		try { navigator.vibrate(durationMs || 25); } catch (e) {}
+	}
+	function onVibrationToggleChange() {
+		const toggle = document.getElementById('vibration-toggle');
+		if (!toggle) return;
+		setSetting('vibrationEnabled', toggle.checked);
+		if (toggle.checked) vibrate(25);
+	}
+	function syncVibrationToggle() {
+		const toggle = document.getElementById('vibration-toggle');
+		const note = document.getElementById('vibration-note');
+		if (!toggle) return;
+		if (!isVibrationSupported()) { toggle.checked = false; toggle.disabled = true; if (note) note.style.display = 'block'; return; }
+		toggle.checked = getSetting('vibrationEnabled');
+	}
+
+	// --- FONT ALTERNATIVO ---
+	function applyFontFamily() { document.documentElement.setAttribute('data-font', getSetting('fontFamily')); }
+	function onFontFamilyToggleChange() {
+		const toggle = document.getElementById('fontfamily-toggle');
+		if (!toggle) return;
+		vibrate();
+		setSetting('fontFamily', toggle.checked ? 'serif' : 'sans');
+		applyFontFamily();
+	}
+	function syncFontFamilyToggle() {
+		const toggle = document.getElementById('fontfamily-toggle');
+		if (toggle) toggle.checked = getSetting('fontFamily') === 'serif';
+	}
+
+	// --- WAKE LOCK ---
+	function isWakeLockSupported() { return 'wakeLock' in navigator; }
+	async function requestWakeLock() {
+		if (!isWakeLockSupported()) return;
+		const enabled = getSetting('wakeLockEnabled');
+		const inDetail = document.getElementById('detail-view').classList.contains('active');
+		if (!enabled || !inDetail) return;
+		try {
+			wakeLockSentinel = await navigator.wakeLock.request('screen');
+			wakeLockSentinel.addEventListener('release', () => { wakeLockSentinel = null; });
+		} catch (e) { console.log('Impossibile attivare il blocco schermo:', e); }
+	}
+	async function releaseWakeLock() {
+		if (wakeLockSentinel) { try { await wakeLockSentinel.release(); } catch (e) {} wakeLockSentinel = null; }
+	}
+	function onWakeLockToggleChange() {
+		const toggle = document.getElementById('wakelock-toggle');
+		if (!toggle) return;
+		vibrate();
+		setSetting('wakeLockEnabled', toggle.checked);
+		if (toggle.checked) requestWakeLock(); else releaseWakeLock();
+	}
+	function syncWakeLockToggle() {
+		const toggle = document.getElementById('wakelock-toggle');
+		const note = document.getElementById('wakelock-note');
+		if (!toggle) return;
+		if (!isWakeLockSupported()) { toggle.checked = false; toggle.disabled = true; if (note) note.style.display = 'block'; return; }
+		toggle.checked = getSetting('wakeLockEnabled');
+	}
+
+	// --- TEMA ---
+	function toggleTheme() {
+		vibrate();
+		const current = document.documentElement.getAttribute('data-theme');
+		const target = current === 'dark' ? 'light' : 'dark';
+		document.documentElement.setAttribute('data-theme', target);
+		setSetting('theme', target);
+	}
+
+	// --- AGGIORNAMENTO E INSTALLAZIONE ---
+	function showUpdateToast() { const t = document.getElementById('update-toast'); if (t) t.classList.add('active'); }
+	function applyUpdate() {
+		vibrate();
+		const t = document.getElementById('update-toast'); if (t) t.classList.remove('active');
+		if (swRegistration && swRegistration.waiting) swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+		else window.location.reload();
+	}
+	async function installApp() {
+		vibrate();
+		if (!deferredInstallPrompt) return;
+		deferredInstallPrompt.prompt();
+		await deferredInstallPrompt.userChoice;
+		deferredInstallPrompt = null;
+		const item = document.getElementById('install-item'); if (item) item.classList.remove('active');
+	}
+
+	function handleSwipeGesture() {
+		if (pinchActive) return;
+		const deltaX = touchEndX - touchStartX;
+		const deltaY = touchEndY - touchStartY;
+		const minDistance = 70;
+		if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+		if (deltaX < -minDistance) { nextMessage(); }
+		else if (deltaX > minDistance) { prevMessage(); }
+	}
+	let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
+
+	document.addEventListener('DOMContentLoaded', () => {
+		const savedTheme = getSetting('theme');
+		document.documentElement.setAttribute('data-theme', savedTheme);
+		applyFontFamily();
+		initApp();
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'visible') requestWakeLock();
+		});
+
+		const detailView = document.getElementById('detail-view');
+		if (detailView) {
+			detailView.addEventListener('touchstart', (e) => {
+				if (e.changedTouches.length === 0) return;
+				touchStartX = e.changedTouches[0].screenX;
+				touchStartY = e.changedTouches[0].screenY;
+			}, { passive: true });
+			detailView.addEventListener('touchend', (e) => {
+				if (e.changedTouches.length === 0) return;
+				touchEndX = e.changedTouches[0].screenX;
+				touchEndY = e.changedTouches[0].screenY;
+				handleSwipeGesture();
+			}, { passive: true });
+		}
+		setupPinchToZoom(document.getElementById('msg-text'));
+		setupPinchToZoom(document.getElementById('messages-list'));
+
+		if (window.location.protocol !== 'file:') {
+			const manifestLink = document.createElement('link');
+			manifestLink.rel = 'manifest';
+			manifestLink.href = 'manifest.json';
+			document.head.appendChild(manifestLink);
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('./sw.js')
+						.then((reg) => {
+							swRegistration = reg;
+							if (reg.waiting) showUpdateToast();
+							reg.addEventListener('updatefound', () => {
+								const newWorker = reg.installing;
+								if (!newWorker) return;
+								newWorker.addEventListener('statechange', () => {
+									if (newWorker.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast();
+								});
+							});
+						})
+						.catch((err) => console.log('Errore nella registrazione del Service Worker:', err));
+					let refreshingPage = false;
+					navigator.serviceWorker.addEventListener('controllerchange', () => {
+						if (refreshingPage) return;
+						refreshingPage = true;
+						window.location.reload();
+					});
+				});
+			}
+		} else {
+			console.log('App aperta da file locale: Manifest e Service Worker disabilitati.');
+		}
+
+		window.addEventListener('beforeinstallprompt', (e) => {
+			e.preventDefault();
+			deferredInstallPrompt = e;
+			const item = document.getElementById('install-item');
+			if (item) item.classList.add('active');
+		});
+		window.addEventListener('appinstalled', () => {
+			deferredInstallPrompt = null;
+			const item = document.getElementById('install-item');
+			if (item) item.classList.remove('active');
+		});
+	});
+</script>
+</body>
+</html>
