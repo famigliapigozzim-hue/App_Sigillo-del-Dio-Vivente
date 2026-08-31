@@ -1,0 +1,54 @@
+[
+  {
+    "id": "coroncina-preziosissimo-sangue",
+    "titolo": "Coroncina al Preziosissimo Sangue",
+    "categoria": "Coroncine",
+    "tipo": "semplice",
+    "testo": "Eterno Padre, io Ti offro il Sangue Preziosissimo di Gesù Cristo in espiazione dei nostri peccati, in suffragio delle anime del Purgatorio e per i bisogni della Santa Chiesa.\n\nSangue di Cristo, ultimo prezzo della nostra salvezza,\nSangue di Cristo, senza il quale non v'è perdono,\nSangue di Cristo, che dai Cieli lavi le anime,\nSangue di Cristo, oceano di misericordia infinita, salvaci.",
+    "allegati": [],
+    "immagini": []
+  },
+  {
+    "id": "atto-di-affidamento-a-maria",
+    "titolo": "Atto di affidamento a Maria",
+    "categoria": "Preghiere del mattino",
+    "tipo": "semplice",
+    "testo": "O Maria, Madre mia, io mi affido totalmente a Te.\nCustodisci il mio cuore, guida i miei passi, veglia sulla mia giornata.\nRendimi strumento del Tuo amore verso ogni persona che incontrerò.\nAmen.",
+    "allegati": [
+      { "tipo": "youtube", "nome": "Ascolta cantata", "url": "https://www.youtube.com/results?search_query=Atto+di+affidamento+a+Maria" }
+    ],
+    "immagini": [
+      "media/madonna-1.jpg"
+    ]
+  },
+  {
+    "id": "santo-rosario",
+    "titolo": "Santo Rosario",
+    "categoria": "Rosario",
+    "tipo": "rosario",
+    "testo": "Nel nome del Padre, del Figlio e dello Spirito Santo. Amen.\n\nSi recitano: Credo, Padre Nostro, 3 Ave Maria, Gloria, poi le 5 decine (ciascuna: Padre Nostro, 10 Ave Maria, Gloria), meditando i misteri del giorno.\n\nAl termine: Salve Regina.",
+    "allegati": [],
+    "immagini": []
+  },
+  {
+    "id": "novena-spirito-santo",
+    "titolo": "Novena allo Spirito Santo",
+    "categoria": "Novene",
+    "tipo": "novena",
+    "giorni": 9,
+    "testoIntro": "Vieni, Santo Spirito, riempi i cuori dei tuoi fedeli e accendi in essi il fuoco del Tuo amore. Manda il Tuo Spirito e rinnoverai la faccia della terra.",
+    "testiGiorni": [
+      "Giorno 1: Spirito Santo, dono del Padre, insegnami ad ascoltare la Tua voce nel silenzio del cuore.",
+      "Giorno 2: Spirito di Sapienza, guidami a distinguere il bene dal male in ogni scelta.",
+      "Giorno 3: Spirito di Intelletto, aprimi alla comprensione della Parola di Dio.",
+      "Giorno 4: Spirito di Consiglio, sostienimi nelle decisioni difficili.",
+      "Giorno 5: Spirito di Fortezza, dammi coraggio nelle prove della vita.",
+      "Giorno 6: Spirito di Scienza, aiutami a vedere Dio in ogni cosa creata.",
+      "Giorno 7: Spirito di Pietà, accendi in me un amore filiale verso il Padre.",
+      "Giorno 8: Spirito di Timor di Dio, custodiscimi nel rispetto e nell'amore per la Sua volontà.",
+      "Giorno 9: Spirito Santo, rinnova oggi in me i doni ricevuti nel Battesimo e nella Cresima. Amen."
+    ],
+    "allegati": [],
+    "immagini": []
+  }
+]
