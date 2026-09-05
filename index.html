@@ -147,6 +147,14 @@
 </style>
 </head>
 <body>
+	<!-- Banner di aggiornamento PWA -->
+	<div id="update-banner" style="display: none; background-color: #1e3a8a; color: white; text-align: center; padding: 12px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: sans-serif;">
+		<span>✨ Nuova versione disponibile con nuovi canti o messaggi!</span>
+		<button onclick="agganciaAggiornamento()" style="background-color: white; color: #1e3a8a; border: none; padding: 6px 12px; margin-left: 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+			Aggiorna ora
+		</button>
+	</div>
+
 	<header>
 		<div class="header-container">
 			<button class="section-picker" id="section-picker-btn" onclick="toggleDropdown()">
@@ -567,7 +575,7 @@
 		if (sezione === 'preghiere' && item.tipo === 'rosario') { body.innerHTML = ''; renderRosarioUI(body, item); return; }
 		if (sezione === 'preghiere' && item.tipo === 'novena') { body.innerHTML = ''; renderNovenaUI(body, item); return; }
 		body.innerHTML = '<div class="item-text"></div>';
-		body.querySelector('.item-text').textContent = item.testo || item.testoIntro || '';
+		body.querySelector('.item-text').innerHTML = item.testo || item.testoIntro || '';
 	}
 	function prevItem() { vibrate(); if (currentDetailRef && currentDetailRef.index > 0) showDetail(currentDetailRef.sezione, currentDetailRef.index - 1, currentList); }
 	function nextItem() { vibrate(); if (currentDetailRef && currentDetailRef.index < currentList.length - 1) showDetail(currentDetailRef.sezione, currentDetailRef.index + 1, currentList); }
@@ -608,7 +616,7 @@
 		if ((item.immagini || []).length > 0) { galBtn.classList.add('active'); document.getElementById('gallery-count').textContent = 'Foto (' + item.immagini.length + ')'; }
 	}
 	function getYoutubeUrlForItem(sezione, item) {
-		if (sezione === 'canti') { if (item.youtube && item.youtube.trim()) return item.youtube.trim(); return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(item.titolo); }
+		if (sezione === 'canti') { if (item.youtube && item.youtube.trim()) return item.youtube.trim(); return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(item.titolo || item.id || ''); }
 		const a = (item.allegati || []).find(x => x.tipo === 'youtube');
 		return a ? a.url : null;
 	}
@@ -835,19 +843,54 @@
 
 		if (window.location.protocol !== 'file:') {
 			const manifestLink = document.createElement('link'); manifestLink.rel='manifest'; manifestLink.href='manifest.json'; document.head.appendChild(manifestLink);
+			let newWorker;
+
 			if ('serviceWorker' in navigator) {
-				window.addEventListener('load', () => {
-					navigator.serviceWorker.register('./sw.js').then(reg => {
-						swRegistration = reg;
-						if (reg.waiting) showUpdateToast();
-						reg.addEventListener('updatefound', () => {
-							const nw = reg.installing; if(!nw)return;
-							nw.addEventListener('statechange', () => { if (nw.state==='installed' && navigator.serviceWorker.controller) showUpdateToast(); });
+				// Registriamo il service worker
+				navigator.serviceWorker.register('/sw.js').then(reg => {
+					// Controlliamo se c'è già un aggiornamento in attesa
+					if (reg.waiting) {
+						newWorker = reg.waiting;
+						mostraBannerAggiornamento();
+					}
+			
+					// Ascoltiamo l'arrivo di nuove versioni in background
+					reg.addEventListener('updatefound', () => {
+						newWorker = reg.installing;
+						newWorker.addEventListener('statechange', () => {
+							// Se la nuova versione ha finito di installarsi ed è pronta
+							if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+								mostraBannerAggiornamento();
+							}
 						});
-					}).catch(err => console.log('Errore SW:', err));
-					let refreshing=false;
-					navigator.serviceWorker.addEventListener('controllerchange', () => { if(refreshing)return; refreshing=true; window.location.reload(); });
+					});
 				});
+			
+				// Quando l'utente clicca "Aggiorna ora", la pagina si ricarica da sola con i nuovi dati
+				let refreshing = false;
+				navigator.serviceWorker.addEventListener('controllerchange', () => {
+					if (!refreshing) {
+						window.location.reload();
+						refreshing = true;
+					}
+				});
+			}
+			
+			// Funzione interna per far comparire il banner
+			function mostraBannerAggiornamento() {
+				const banner = document.getElementById('update-banner');
+				if (banner) {
+					banner.style.display = 'block';
+				}
+			}
+			
+			// Funzione collegata al pulsante "Aggiorna ora"
+			function agganciaAggiornamento() {
+			
+				if (newWorker) {
+					// Diciamo al Service Worker di saltare l'attesa e attivarsi subito
+					newWorker.postMessage({ type: 'SKIP_WAITING' });
+				}
 			}
 		}
 		window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt=e; document.getElementById('install-item').classList.add('active'); });
